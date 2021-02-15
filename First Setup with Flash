@@ -92,7 +92,7 @@ void loop() {
       break;
       
   }  // end of switch
-leds[0] = CHSV( random8(26,45), random8(175,255), random8(50,255));
+leds[0] = CHSV( random8(26,45), random8(175,255), random8(50,255)); //singlen led lantern or flame effect change hue values to edit flame color
 leds[1] = CHSV(192,255,175);
 leds[2] = CHSV( random8(26,45), random8(175,255), random8(50,255)); 
 leds[4] = CHSV( random8(26,45), random8(175,255), random8(50,255));
@@ -111,4 +111,8 @@ leds[14] = CHSV(0,0,0);
   FastLED.show();
 
 
-}  // Thank you to marmilicious (Marc Miller) for setting up the Flash effect and helping me learn!
+}  
+// LED0- Lantern Shop Upstairs LED1 Shop Lower Curtain LED2 Lantern Window LED3 Avada Kedavra Flash Circle Window LED4 Cathedral Style Window LED5 Lower shop2 LED6 Upstairs
+// LED7 and LED11 Borgin and Burkes Dungeon LED8 and LED10 Borgin and Burkes Display Windows LED11 Borgin and Burkes Upstairs
+
+// Thank you to marmilicious (Marc Miller) for creating the Flash effect and helping me learn!
