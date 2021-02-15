@@ -1,0 +1,114 @@
+#include "FastLED.h"
+#define DATA_PIN 2
+#define CLOCK_PIN 11
+#define LED_TYPE WS2812B
+#define COLOR_ORDER GRB
+#define NUM_LEDS 15
+#define BRIGHTNESS 255
+CRGB leds[NUM_LEDS];
+
+const uint8_t greenPixel = 3;  // pixel number for green flash
+static uint8_t greenFlash = 0;  // the current switch case (start Off)
+static uint8_t greenDimVal = 70;  // ramp up to this dim value 
+static CEveryNMilliseconds holdTimer(350);  // time to hold dim value before flash
+static CEveryNMilliseconds fullTimer(20);  // time to hold flash/full brightness
+uint8_t gVal;
+
+
+//===============================================================
+void setup() {
+  Serial.begin(115200);
+  delay(1500);
+  FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS);
+  FastLED.setBrightness(BRIGHTNESS);
+  FastLED.clear();
+  FastLED.show();
+  Serial.println("Setup done.\n");  
+}
+
+//===============================================================
+void loop() {
+
+  // fill up the strip up with some animated colors
+  static uint8_t colorIndex;
+  EVERY_N_MILLISECONDS(80){
+    colorIndex++;
+  }
+  for( int i = 0; i < NUM_LEDS; ++i) {
+    leds[i] = ColorFromPalette( LavaColors_p, colorIndex + (3*i), 10, LINEARBLEND);
+  }
+
+
+
+  // how often to run the green flash
+  //   EVERY_N_MILLISECONDS, _SECONDS, _MINUTES, or _HOURS  
+  EVERY_N_MINUTES(10){  
+    greenFlash = 1;  // switch to case 1 (start green fade in)
+    gVal = 0;  // reset brightness value to 0
+  }
+
+
+
+  switch (greenFlash) {
+    
+    case 0:
+      // turn pixel Off
+      leds[greenPixel] = CHSV(0,0,0);
+      break;
+      
+    case 1:
+      // fade in green
+      
+      leds[greenPixel] = CHSV(96,120,gVal);
+      
+      EVERY_N_MILLISECONDS(6) {  // increase to slow ramp up time
+        gVal += 1;
+        if (gVal >= greenDimVal) {
+          greenFlash = 2;  // move on to hold
+          holdTimer.reset();  // zero timer for next section
+        }
+      }
+      break;
+      
+    case 2:
+      // hold green
+      leds[greenPixel] = CHSV(96,255,greenDimVal);
+      if (holdTimer) {
+        greenFlash = 3;  // move on to full brightness
+        fullTimer.reset();  // zero timer for next section
+      }
+      break;
+      
+    case 3:
+      // full bright green
+      leds[greenPixel] = CHSV(96,245,255);  // slightly desaturated
+      if (fullTimer) {
+        greenFlash = 0;  // go back to green off
+        //Serial.println("green pixel turned Off");
+      }
+      break;
+      
+    default:
+      break;
+      
+  }  // end of switch
+leds[0] = CHSV( random8(26,45), random8(175,255), random8(50,255));
+leds[1] = CHSV(192,255,175);
+leds[2] = CHSV( random8(26,45), random8(175,255), random8(50,255)); 
+leds[4] = CHSV( random8(26,45), random8(175,255), random8(50,255));
+leds[5] = CHSV(162,255,175);
+leds[6] = CHSV(0,255,175);
+leds[7] = CHSV(100,255,75);
+leds[8] = CHSV( random8(26,45), random8(175,255), random8(50,255));
+leds[9] = CHSV( random8(26,45), random8(175,255), random8(50,255));
+leds[10] = CHSV( random8(26,45), random8(175,255), random8(50,255));
+leds[11] = CHSV(100,255,75);
+leds[12] = CHSV(0,0,0); //added 12, 13, and 14 just in case I decided to add in these lights as well
+leds[13] = CHSV(0,0,0);
+leds[14] = CHSV(0,0,0);
+
+
+  FastLED.show();
+
+
+}  // Thank you to marmilicious (Marc Miller) for setting up the Flash effect and helping me learn!
